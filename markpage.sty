@@ -10,14 +10,21 @@
 
 %#####################################################____OPTIONS
 \def\mp@showgrid{0}
-\DeclareOption{grid}{\def\mp@showgrid{1}}%Grid
+\define@key{mpkeys}{grid}[]{\def\mp@showgrid{1}}%Grid
 
 \def\mp@fileprefix{abc00_hwX}
 \define@key{mpkeys}{source}{\def\mp@fileprefix{#1}}%source
 
+
 \def\mp@kvfam{{mpkeys}}
 \DeclareOption*{\expandafter\expandafter\expandafter\setkeys\expandafter\mp@kvfam\expandafter{\CurrentOption}}
 \ProcessOptions\relax
+
+%________________________________________________________________%
+\def\mp@mDefaults{}%mpage defaults
+\newcommand\mpageDefaults[1]{\def\mp@mDefaults{#1}}
+\def\mp@nDefaults{}%mpage defaults
+\newcommand\mnoteDefaults[1]{\def\mp@nDefaults{#1}}
 
 %#####################################################____LENGTHS
 \newlength{\mp@gMarkMargin}
@@ -30,7 +37,8 @@
 \newlength{\mp@pdfyoffset}
 %#####################################################____FLAGS
 \def\mp@eof{0}%set to 1 when no more pages available to include
-
+%#####################################################____ARGCONCAT
+\newcommand\mp@argconcat[2]{#1\if#1\empty\else\if#2\empty\else,\fi\fi#2}
 %#####################################################____MNOTE
 %mnote keyvals
 \newcommand{\mp@nDefaultOpts}{
@@ -56,7 +64,11 @@
 %reset default option values
 \mp@nDefaultOpts
 %handle options
-\setkeys{mpnKeys}{#1}
+\def\mpnKeys{{mpnKeys}}
+\edef\mpArgExp{\mp@argconcat{\mp@nDefaults}{#1}}%preexpand concatenation of new args and defaults
+\expandafter\expandafter\expandafter\setkeys\expandafter\mpnKeys\expandafter{\mpArgExp}
+
+%\setkeys{mpnKeys}{\mp@argconcat{\mp@nDefaults}{#1}}
 \expandafter\draw\expandafter[\expandafter\mp@nColour\mp@nLineOpts] (#2 cm,#3 cm) node[shape=circle,minimum size=6pt, inner sep=0pt, fill]{}--%highlighter end
 \if\mp@portraitmode1%portrait mode
 (\mp@pdfpaperWidth + \mp@nXoffset cm,#3 cm+\mp@nYoffset cm)   node[anchor=\mp@nAnchorP]{ \begin{varwidth}{\mp@nLineWidth}#4\end{varwidth}};
@@ -76,11 +88,12 @@
 \draw[lightgray, step=0.5cm] (0,0) grid (\mp@pdfpaperWidth,\mp@pdfpaperHeight);
 \draw[gray, step=1cm] (0,0) grid (\mp@pdfpaperWidth,\mp@pdfpaperHeight);
 \foreach \k in{1,2,...,\mp@pagewidthcm-1}{%x-labels
-\draw (\k cm,2cm) node[anchor=north east]{\k};
-\draw (\k cm,\the\mp@pageheightcm cm-2cm) node[anchor=north east]{\k};
+\if\mp@mGridNumS 1\draw[purple] (\k cm,\mp@mGridNumSInset cm) node[anchor=north east]{\k};\fi
+\if\mp@mGridNumN 1\draw[purple] (\k cm,\the\mp@pageheightcm cm-\mp@mGridNumNInset cm) node[anchor=north east]{\k};\fi
 }
 \foreach \k in{1,2,...,\mp@pageheightcm-1}{%y-labels
-\draw[blue] (\the\mp@pagewidthcm cm-2cm,\k cm) node[anchor=north west]{\k};
+\if\mp@mGridNumE 1\draw[purple] (\the\mp@pagewidthcm cm-\mp@mGridNumEInset cm,\k cm) node[anchor=north west]{\k};\fi
+\if\mp@mGridNumW 1 \draw[purple](\mp@mGridNumWInset cm,\k cm) node[anchor=north west]{\k};\fi
 }
 \fi
 }
@@ -147,14 +160,36 @@
 %mpage keyvals
 \newcommand{\mp@mDefaultOpts}{
 \setlength{\mp@mMarkMargin}{\mp@gMarkMargin}%copy global default margin
+
+\mp@mNumToggle{1}{1}{1}{1}
+\mp@mNumInset{3}{3}{5}{3}
+}
+\newcommand\mp@mNumToggle[4]{
+\def\mp@mGridNumN{#1}%north grid nos toggle 1 or 0
+\def\mp@mGridNumS{#3}%south grid nos toggle 1 or 0
+\def\mp@mGridNumE{#2}%east grid nos toggle 1 or 0
+\def\mp@mGridNumW{#4}%west grid nos toggle 1 or 0
+}
+
+\newcommand\mp@mNumInset[4]{
+\def\mp@mGridNumNInset{#1}%north grid nos inset in cm
+\def\mp@mGridNumSInset{#3}%south grid nos inset in cm
+\def\mp@mGridNumEInset{#2}%east grid nos inset in cm
+\def\mp@mGridNumWInset{#4}%west grid nos inset in cm
 }
 \define@key{mpmKeys}{margin}{\setlength{\mp@mMarkMargin}{#1}}
+\define@key{mpmKeys}{num show}{\mp@mNumToggle#1
+}
+\define@key{mpmKeys}{num inset}{\mp@mNumInset#1}
 
 %________________________________________________________________________%
 %Include next page in document, add comments using \mnote in this environment
 \NewEnviron{mpage}[1][]{
 \mp@mDefaultOpts
-\setkeys{mpmKeys}{#1}
+\def\mpmKeys{{mpmKeys}}
+\edef\mpArgExp{\mp@argconcat{\mp@mDefaults}{#1}}%preexpand concatenation of new args and defaults
+\expandafter\expandafter\expandafter\setkeys\expandafter\mpmKeys\expandafter{\mpArgExp}
+
 
 \mp@stepcounters%start at page 1
 \if\mp@eof0%ignore environment content if no page found
@@ -194,8 +229,9 @@
 
 %#####################################################____INITIALIZATION
 \edef\mp@lastpage{[No page found]}%string representing last page found
+%Only need this edef here if empty pdfs possible...
+
 %Init counters.
 \IfFileExists{\mp@decoratedpath}{}{\stepcounter{mpDoc}}%if prefix.pdf exists do nothing%Else look for prefix_1.pdf 
 \IfFileExists{\mp@decoratedpath}{\mp@checkmaxpages}{\errmessage{\mp@decoratedpath not found!}}%path should be valid now, so check it
-
 \endinput
