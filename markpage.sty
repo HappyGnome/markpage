@@ -6,7 +6,8 @@
 \RequirePackage{tikz}
 \RequirePackage{environ}
 \RequirePackage{keyval}
-\RequirePackage{pbox}
+
+
 
 %#####################################################____OPTIONS
 \def\mp@showgrid{0}
@@ -85,15 +86,15 @@
 \def\mp@pagewidthcm{\numexpr\mp@pdfpaperWidth/\dimexpr1cm\relax}
 
 
-\draw[lightgray, step=0.5cm] (0,0) grid (\mp@pdfpaperWidth,\mp@pdfpaperHeight);
+\if\mp@mShowSubgrid1\draw[lightgray, step=0.5cm] (0,0) grid (\mp@pdfpaperWidth,\mp@pdfpaperHeight);\fi
 \draw[gray, step=1cm] (0,0) grid (\mp@pdfpaperWidth,\mp@pdfpaperHeight);
 \foreach \k in{1,2,...,\mp@pagewidthcm-1}{%x-labels
-\if\mp@mGridNumS 1\draw[purple] (\k cm,\mp@mGridNumSInset cm) node[anchor=north east]{\k};\fi
-\if\mp@mGridNumN 1\draw[purple] (\k cm,\the\mp@pageheightcm cm-\mp@mGridNumNInset cm) node[anchor=north east]{\k};\fi
+\if\mp@mGridNumS 1\draw[\mp@mGridNumColour] (\k cm,\mp@mGridNumSInset cm) node[anchor=north east]{\k};\fi
+\if\mp@mGridNumN 1\draw[\mp@mGridNumColour] (\k cm,\the\mp@pageheightcm cm-\mp@mGridNumNInset cm) node[anchor=north east]{\k};\fi
 }
 \foreach \k in{1,2,...,\mp@pageheightcm-1}{%y-labels
-\if\mp@mGridNumE 1\draw[purple] (\the\mp@pagewidthcm cm-\mp@mGridNumEInset cm,\k cm) node[anchor=north west]{\k};\fi
-\if\mp@mGridNumW 1 \draw[purple](\mp@mGridNumWInset cm,\k cm) node[anchor=north west]{\k};\fi
+\if\mp@mGridNumE 1\draw[\mp@mGridNumColour] (\the\mp@pagewidthcm cm-\mp@mGridNumEInset cm,\k cm) node[anchor=north west]{\k};\fi
+\if\mp@mGridNumW 1 \draw[\mp@mGridNumColour](\mp@mGridNumWInset cm,\k cm) node[anchor=north west]{\k};\fi
 }
 \fi
 }
@@ -163,6 +164,8 @@
 
 \mp@mNumToggle{1}{1}{1}{1}
 \mp@mNumInset{3}{3}{5}{3}
+\def\mp@mGridNumColour{purple}
+\def\mp@mShowSubgrid{1}%1 or 0 to toggle subgrid (assuming grid is shown)
 }
 \newcommand\mp@mNumToggle[4]{
 \def\mp@mGridNumN{#1}%north grid nos toggle 1 or 0
@@ -181,6 +184,8 @@
 \define@key{mpmKeys}{num show}{\mp@mNumToggle#1
 }
 \define@key{mpmKeys}{num inset}{\mp@mNumInset#1}
+\define@key{mpmKeys}{num colour}{\def\mp@mGridNumColour{#1}}
+\define@key{mpmKeys}{subgrid show}{\def\mp@mShowSubgrid{#1}}
 
 %________________________________________________________________________%
 %Include next page in document, add comments using \mnote in this environment
@@ -234,4 +239,9 @@
 %Init counters.
 \IfFileExists{\mp@decoratedpath}{}{\stepcounter{mpDoc}}%if prefix.pdf exists do nothing%Else look for prefix_1.pdf 
 \IfFileExists{\mp@decoratedpath}{\mp@checkmaxpages}{\errmessage{\mp@decoratedpath not found!}}%path should be valid now, so check it
+
+%#####################################################____Handy Symbols
+\RequirePackage{pifont}
+\newcommand\mtick{\ding{51}}
+\newcommand\mcross{\ding{55}}
 \endinput
