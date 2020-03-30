@@ -28,6 +28,8 @@
 
 \newlength{\mp@pdfxoffset}%offset of included page in enlarged page
 \newlength{\mp@pdfyoffset}
+%#####################################################____FLAGS
+\def\mp@eof{0}%set to 1 when no more pages available to include
 
 %#####################################################____MNOTE
 %mnote keyvals
@@ -86,21 +88,35 @@
 %#####################################################____COUNTERS
 \newcounter{mpDoc}%document counter (for solutions spread over multiple documents)
 \newcounter{mpPage}[mpDoc]%next page in current document
-\newcounter{mpAvailPages}%number of pages in current document
+\newcounter{mpAvailPages}[mpDoc]%number of pages in current document
 
 %#####################################################____DECORATEDPATH
 \newcommand{\mp@decoratedpath}%return path decorated by file number (or plain if mpDoc=0)
 {\mp@fileprefix\if\thempDoc0\else_\thempDoc\fi.pdf}
 
 %#####################################################____STEPCOUNTERS
-\newcommand{\mp@stepcounters}[1][1]{%set optional parameter 0 to suppress attempting to open next file
+\newcommand{\mp@stepcounters}[1][1]{%set optional parameter 0 to suppress end of file warning
 %check for page limit of current doc
+\if\mp@eof0
 \ifnum\value{mpPage}<\value{mpAvailPages}
 \else%page>=number of pages
-\stepcounter{mpDoc}%also resets mpPage
-\if#11\mp@checkmaxpages\fi%update mpAvailPages unless optional 0 given
-\fi
+\stepcounter{mpDoc}%also resets mpPage and mpAvailPages
+\IfFileExists{\mp@decoratedpath}{
+	\mp@checkmaxpages%update mpAvailPages 
+	\mp@stepcounters[#1]{}%recursively check new document for a page to include
+	}{	%no file found => end of pages to mark 
+	\global\def\mp@eof{1}}%set eof flag
+\fi%pages available
+\fi%eof 0
+\if\mp@eof0%increment counter to point to valid page, or optionally print warning if none available
 \stepcounter{mpPage}
+\global\edef\mp@lastpage{[\mp@decoratedpath:\thempPage]}%string representing current page and file
+\else
+	\if#11%unless warning suppressed
+	\message{-----------------------------------------------------------------------------}
+	\message{LaTeX Warning: No page found to load after \mp@lastpage. Any \noexpand\mnote calls that follow will not appear.}
+	\fi
+\fi
 }
 
 %#####################################################____CHECKMAXPAGES
@@ -113,18 +129,18 @@
 \newcommand{\mp@checkpagedim}{%update paper size options for next included page
 \pdfximage page \thempPage{\mp@decoratedpath} %open specific page 
 \setlength{\mp@pdfpaperWidth}{\pdfximagebbox\pdflastximage 3}
- \addtolength{\mp@pdfpaperWidth}{\pdfximagebbox\pdflastximage 1}%find width
+ \addtolength{\mp@pdfpaperWidth}{-\pdfximagebbox\pdflastximage 1}%find width
 \setlength{\mp@pdfpaperHeight}{\pdfximagebbox\pdflastximage 4}
  \addtolength{\mp@pdfpaperHeight}{-\pdfximagebbox\pdflastximage 2}%find height
  
- \ifnum \mp@pdfpaperWidth>\mp@pdfpaperHeight%set orientation
- \def\mp@portraitmode{0}
- \else
-  \def\mp@portraitmode{1}
-  \fi
+\ifnum \mp@pdfpaperWidth>\mp@pdfpaperHeight%set orientation
+\def\mp@portraitmode{0}
+\else
+\def\mp@portraitmode{1}
+\fi
   
 \message{-----------------------------------------------------------------------------}
-\message{Page \thempPage.  File \thempDoc : \the\mp@pdfpaperWidth. by \the\mp@pdfpaperHeight}
+\message{\mp@lastpage: \the\mp@pdfpaperWidth\space by \the\mp@pdfpaperHeight}
 }
 
 %#####################################################____MPAGE
@@ -141,8 +157,9 @@
 \setkeys{mpmKeys}{#1}
 
 \mp@stepcounters%start at page 1
-\mp@checkpagedim%get dimension of page
+\if\mp@eof0%ignore environment content if no page found
 
+\mp@checkpagedim%update dimension of page
 \setlength{\pdfpagewidth}{\mp@pdfpaperWidth}
 \setlength{\pdfpageheight}{\mp@pdfpaperHeight}
 \setlength{\mp@pdfxoffset}{0 pt}%offset of included page in enlarged page
@@ -160,6 +177,7 @@
 \setlength{\paperheight}{\pdfpageheight}%change paperheight to match so that pdfpages aligns things correctly
 
 \includepdf[pages= \thempPage, offset=\mp@pdfxoffset pt \mp@pdfyoffset pt,  picturecommand={\begin{tikzpicture}[remember picture, overlay, baseline={(0,-2\mp@pdfyoffset)}] \mgrid\BODY\end{tikzpicture}}]{\mp@decoratedpath}%%offset=\the\mp@pdfxoffset \the\mp@pdfyoffset
+\fi%eof 
 }
 
 %#####################################################____MSTATUS
@@ -175,9 +193,9 @@
 }
 
 %#####################################################____INITIALIZATION
-%Init counters (decide multipage or not).
+\edef\mp@lastpage{[No page found]}%string representing last page found
+%Init counters.
 \IfFileExists{\mp@decoratedpath}{}{\stepcounter{mpDoc}}%if prefix.pdf exists do nothing%Else look for prefix_1.pdf 
-\IfFileExists{\mp@decoratedpath}{}{\errmessage{\mp@decoratedpath not found!}}%path should be valid now, so check it
-\mp@checkmaxpages
+\IfFileExists{\mp@decoratedpath}{\mp@checkmaxpages}{\errmessage{\mp@decoratedpath not found!}}%path should be valid now, so check it
 
 \endinput
