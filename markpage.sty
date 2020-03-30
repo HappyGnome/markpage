@@ -50,6 +50,7 @@
 \def\mp@nAnchorL{north}%landscape anchor
 \def\mp@nColour{red}
 \def\mp@nLineOpts{}
+\def\mp@nBend{0}%degrees bend of the line +ve for left bend
 }
 \define@key{mpnKeys}{xoff}{\def\mp@nXoffset{#1}}%xoff
 \define@key{mpnKeys}{yoff}{\def\mp@nYoffset{#1}}%yoff
@@ -58,6 +59,7 @@
 \def\mp@nAnchorL{#1}}%set anchors for landscape and portrait modes 
 \define@key{mpnKeys}{colour}{\def\mp@nColour{#1}}
 \define@key{mpnKeys}{line opts}{\def\mp@nLineOpts{,#1}}%Other tikz options for the lines can be set here
+\define@key{mpnKeys}{bend}{\def\mp@nBend{#1}}
 
 %________________________________________________________________________%
 %mnote command
@@ -69,12 +71,13 @@
 \edef\mpArgExp{\mp@argconcat{\mp@nDefaults}{#1}}%preexpand concatenation of new args and defaults
 \expandafter\expandafter\expandafter\setkeys\expandafter\mpnKeys\expandafter{\mpArgExp}
 
-%\setkeys{mpnKeys}{\mp@argconcat{\mp@nDefaults}{#1}}
-\expandafter\draw\expandafter[\expandafter\mp@nColour\mp@nLineOpts] (#2 cm,#3 cm) node[shape=circle,minimum size=6pt, inner sep=0pt, fill]{}--%highlighter end
+\expandafter\draw\expandafter[\expandafter\mp@nColour\mp@nLineOpts] (#2 cm,#3 cm)node[shape=circle,minimum size=6pt, inner sep=0pt, fill]{}
 \if\mp@portraitmode1%portrait mode
-(\mp@pdfpaperWidth + \mp@nXoffset cm,#3 cm+\mp@nYoffset cm)   node[anchor=\mp@nAnchorP]{ \begin{varwidth}{\mp@nLineWidth}#4\end{varwidth}};
+ to [bend left=\mp@nBend] %highlighter end
+ (\the\mp@pdfpaperWidth + \mp@nXoffset cm,#3 cm+\mp@nYoffset cm)  node[anchor=\mp@nAnchorP]{ \begin{varwidth}{\mp@nLineWidth}#4\end{varwidth}};
 \else%landscape mode
-(#2 cm+ \mp@nXoffset cm,+ \mp@nYoffset cm)   node[anchor=\mp@nAnchorL]{  \begin{varwidth}{\mp@nLineWidth}#4\end{varwidth}};
+ to [bend left=\mp@nBend] %highlighter end
+ (#2 cm+ \mp@nXoffset cm,\mp@nYoffset cm)   node[anchor=\mp@nAnchorL]{  \begin{varwidth}{\mp@nLineWidth}#4\end{varwidth}};
 \fi
 }
 
