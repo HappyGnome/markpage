@@ -1,0 +1,181 @@
+\NeedsTeXFormat{LaTeX2e}[1994/06/01]
+\ProvidesPackage{markpage}[2020/03/25]
+
+\RequirePackage{pdfpages}
+\RequirePackage{varwidth}
+\RequirePackage{tikz}
+\RequirePackage{environ}
+\RequirePackage{keyval}
+\RequirePackage{pbox}
+
+%#####################################################____OPTIONS
+\def\mp@showgrid{0}
+\DeclareOption{grid}{\def\mp@showgrid{1}}
+
+\def\mp@fileprefix{abc00_hwX}
+\define@key{mpkeys}{source}{\def\mp@fileprefix{#1}}
+\def\mp@kvfam{{mpkeys}}
+\DeclareOption*{\expandafter\expandafter\expandafter\setkeys\expandafter\mp@kvfam\expandafter{\CurrentOption}}
+\ProcessOptions\relax
+
+%#####################################################____LENGTHS
+\newlength{\mp@gMarkMargin}
+\newlength{\mp@mMarkMargin}%mark margin for current page
+\setlength{\mp@gMarkMargin}{5cm}%default margin (can be set per page)
+\newlength{\mp@pdfpaperWidth}%dimensions of included document
+\newlength{\mp@pdfpaperHeight}
+
+\newlength{\mp@pdfxoffset}%offset of included page in enlarged page
+\newlength{\mp@pdfyoffset}
+
+%#####################################################____MNOTE
+%mnote keyvals
+\newcommand{\mp@nDefaultOpts}{
+\def\mp@nXoffset{0}%offset of note from default. cm
+\def\mp@nYoffset{0}
+\def\mp@nLineWidth{\dimexpr\mp@mMarkMargin-0.5cm\relax}
+\def\mp@nAnchorP{west}%portrait anchor
+\def\mp@nAnchorL{north}%landscape anchor
+\def\mp@nColour{red}
+\def\mp@nLineOpts{}
+}
+\define@key{mpnKeys}{xoff}{\def\mp@nXoffset{#1}}%xoff
+\define@key{mpnKeys}{yoff}{\def\mp@nYoffset{#1}}%yoff
+\define@key{mpnKeys}{width}{\def\mp@nLineWidth{#1}}%width
+\define@key{mpnKeys}{anchor}{\def\mp@nAnchorP{#1}
+\def\mp@nAnchorL{#1}}%set anchors for landscape and portrait modes 
+\define@key{mpnKeys}{colour}{\def\mp@nColour{#1}}
+\define@key{mpnKeys}{line opts}{\def\mp@nLineOpts{,#1}}%Other tikz options for the lines can be set here
+
+%________________________________________________________________________%
+%mnote command
+\newcommand{\mnote}[4][]{
+%reset default option values
+\mp@nDefaultOpts
+%handle options
+\setkeys{mpnKeys}{#1}
+\if\mp@portraitmode1
+\expandafter\draw\expandafter[\expandafter\mp@nColour\mp@nLineOpts] (#2 cm,#3 cm) node[shape=circle,minimum size=6pt, inner sep=0pt, fill]{} --  (\mp@pdfpaperWidth + \mp@nXoffset cm,#3 cm+\mp@nYoffset cm)   node[anchor=\mp@nAnchorP]{ \begin{varwidth}{\mp@nLineWidth}#4\end{varwidth}};
+\else%landscape mode
+\expandafter\draw\expandafter[\expandafter\mp@nColour\mp@nLineOpts]  (#2 cm,#3 cm)  --  (#2 cm+ \mp@nXoffset cm,+ \mp@nYoffset cm)   node[anchor=\mp@nAnchorL]{  \begin{varwidth}{\mp@nLineWidth}#4\end{varwidth}};
+\fi
+}
+
+%#####################################################____MGRID
+\newcommand{\mgrid}{
+\if\mp@showgrid 1%Show grid...
+
+\def\mp@pageheightcm{\numexpr\mp@pdfpaperHeight/\dimexpr1cm\relax}%row/col count for 1cm grid
+\def\mp@pagewidthcm{\numexpr\mp@pdfpaperWidth/\dimexpr1cm\relax}
+
+
+\draw[lightgray, step=0.5cm] (0,0) grid (\mp@pdfpaperWidth,\mp@pdfpaperHeight);
+\draw[gray, step=1cm] (0,0) grid (\mp@pdfpaperWidth,\mp@pdfpaperHeight);
+\foreach \k in{1,2,...,\mp@pagewidthcm-1}{%x-labels
+\draw (\k cm,2cm) node[anchor=north east]{\k};
+\draw (\k cm,\the\mp@pageheightcm cm-2cm) node[anchor=north east]{\k};
+}
+\foreach \k in{1,2,...,\mp@pageheightcm-1}{%y-labels
+\draw[blue] (\the\mp@pagewidthcm cm-2cm,\k cm) node[anchor=north west]{\k};
+}
+\fi
+}
+
+%#####################################################____COUNTERS
+\newcounter{mpDoc}%document counter (for solutions spread over multiple documents)
+\newcounter{mpPage}[mpDoc]%next page in current document
+\newcounter{mpAvailPages}%number of pages in current document
+
+%#####################################################____DECORATEDPATH
+\newcommand{\mp@decoratedpath}%return path decorated by file number (or plain if mpDoc=0)
+{\mp@fileprefix\if\thempDoc0\else_\thempDoc\fi.pdf}
+
+%#####################################################____STEPCOUNTERS
+\newcommand{\mp@stepcounters}[1][1]{%set optional parameter 0 to suppress attempting to open next file
+%check for page limit of current doc
+\ifnum\value{mpPage}<\value{mpAvailPages}
+\else%page>=number of pages
+\stepcounter{mpDoc}%also resets mpPage
+\if#11\mp@checkmaxpages\fi%update mpAvailPages unless optional 0 given
+\fi
+\stepcounter{mpPage}
+}
+
+%#####################################################____CHECKMAXPAGES
+\newcommand{\mp@checkmaxpages}{
+\pdfximage{\mp@decoratedpath} 
+\setcounter{mpAvailPages}{\the\pdflastximagepages}
+}
+
+%#####################################################____CHECKPAGEDIM
+\newcommand{\mp@checkpagedim}{%update paper size options for next included page
+\pdfximage page \thempPage{\mp@decoratedpath} %open specific page 
+\setlength{\mp@pdfpaperWidth}{\pdfximagebbox\pdflastximage 3}
+ \addtolength{\mp@pdfpaperWidth}{\pdfximagebbox\pdflastximage 1}%find width
+\setlength{\mp@pdfpaperHeight}{\pdfximagebbox\pdflastximage 4}
+ \addtolength{\mp@pdfpaperHeight}{-\pdfximagebbox\pdflastximage 2}%find height
+ 
+ \ifnum \mp@pdfpaperWidth>\mp@pdfpaperHeight%set orientation
+ \def\mp@portraitmode{0}
+ \else
+  \def\mp@portraitmode{1}
+  \fi
+  
+\message{-----------------------------------------------------------------------------}
+\message{Page \thempPage.  File \thempDoc : \the\mp@pdfpaperWidth. by \the\mp@pdfpaperHeight}
+}
+
+%#####################################################____MPAGE
+%mpage keyvals
+\newcommand{\mp@mDefaultOpts}{
+\setlength{\mp@mMarkMargin}{\mp@gMarkMargin}%copy global default margin
+}
+\define@key{mpmKeys}{margin}{\setlength{\mp@mMarkMargin}{#1}}
+
+%________________________________________________________________________%
+%Include next page in document, add comments using \mnote in this environment
+\NewEnviron{mpage}[1][]{
+\mp@mDefaultOpts
+\setkeys{mpmKeys}{#1}
+
+\mp@stepcounters%start at page 1
+\mp@checkpagedim%get dimension of page
+
+\setlength{\pdfpagewidth}{\mp@pdfpaperWidth}
+\setlength{\pdfpageheight}{\mp@pdfpaperHeight}
+\setlength{\mp@pdfxoffset}{0 pt}%offset of included page in enlarged page
+\setlength{\mp@pdfyoffset}{0 pt}
+
+\if\mp@portraitmode1
+\addtolength{\pdfpagewidth}{\mp@mMarkMargin}%margin on right
+%set page dimensions appropriately
+\setlength{\mp@pdfxoffset}{-0.5\mp@mMarkMargin}
+\else
+\addtolength{\pdfpageheight}{\mp@mMarkMargin}%margin below
+\setlength{\mp@pdfyoffset}{0.5\mp@mMarkMargin}
+\fi
+\setlength{\paperwidth}{\pdfpagewidth}%change paperwidth to match so that pdfpages aligns things correctly
+\setlength{\paperheight}{\pdfpageheight}%change paperheight to match so that pdfpages aligns things correctly
+
+\includepdf[pages= \thempPage, offset=\mp@pdfxoffset pt \mp@pdfyoffset pt,  picturecommand={\begin{tikzpicture}[remember picture, overlay, baseline={(0,-2\mp@pdfyoffset)}] \mgrid\BODY\end{tikzpicture}}]{\mp@decoratedpath}%%offset=\the\mp@pdfxoffset \the\mp@pdfyoffset
+}
+
+%#####################################################____MSTATUS
+%call to check whether all pages read
+%do this by looking for next page and checking that none can be found
+%call only after all mpages used, or counters will be messed up!
+\newcommand{\mstatus}{
+\mp@stepcounters[0]{}
+\IfFileExists{\mp@decoratedpath}{\errmessage{You missed some pages!}}{
+\message{-----------------------------------------------------------------------------}
+\message{All pages marked!}
+\message{-----------------------------------------------------------------------------}}
+}
+
+%#####################################################____INITIALIZATION
+%Init counters (decide multipage or not).
+\IfFileExists{\mp@decoratedpath}{}{\stepcounter{mpDoc}}%if prefix.pdf exists do nothing%Else look for prefix_1.pdf 
+\IfFileExists{\mp@decoratedpath}{}{\errmessage{\mp@decoratedpath not found!}}%path should be valid now, so check it
+\mp@checkmaxpages
+
+\endinput
