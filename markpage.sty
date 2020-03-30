@@ -10,10 +10,11 @@
 
 %#####################################################____OPTIONS
 \def\mp@showgrid{0}
-\DeclareOption{grid}{\def\mp@showgrid{1}}
+\DeclareOption{grid}{\def\mp@showgrid{1}}%Grid
 
 \def\mp@fileprefix{abc00_hwX}
-\define@key{mpkeys}{source}{\def\mp@fileprefix{#1}}
+\define@key{mpkeys}{source}{\def\mp@fileprefix{#1}}%source
+
 \def\mp@kvfam{{mpkeys}}
 \DeclareOption*{\expandafter\expandafter\expandafter\setkeys\expandafter\mp@kvfam\expandafter{\CurrentOption}}
 \ProcessOptions\relax
@@ -54,10 +55,11 @@
 \mp@nDefaultOpts
 %handle options
 \setkeys{mpnKeys}{#1}
-\if\mp@portraitmode1
-\expandafter\draw\expandafter[\expandafter\mp@nColour\mp@nLineOpts] (#2 cm,#3 cm) node[shape=circle,minimum size=6pt, inner sep=0pt, fill]{} --  (\mp@pdfpaperWidth + \mp@nXoffset cm,#3 cm+\mp@nYoffset cm)   node[anchor=\mp@nAnchorP]{ \begin{varwidth}{\mp@nLineWidth}#4\end{varwidth}};
+\expandafter\draw\expandafter[\expandafter\mp@nColour\mp@nLineOpts] (#2 cm,#3 cm) node[shape=circle,minimum size=6pt, inner sep=0pt, fill]{}--%highlighter end
+\if\mp@portraitmode1%portrait mode
+(\mp@pdfpaperWidth + \mp@nXoffset cm,#3 cm+\mp@nYoffset cm)   node[anchor=\mp@nAnchorP]{ \begin{varwidth}{\mp@nLineWidth}#4\end{varwidth}};
 \else%landscape mode
-\expandafter\draw\expandafter[\expandafter\mp@nColour\mp@nLineOpts]  (#2 cm,#3 cm)  --  (#2 cm+ \mp@nXoffset cm,+ \mp@nYoffset cm)   node[anchor=\mp@nAnchorL]{  \begin{varwidth}{\mp@nLineWidth}#4\end{varwidth}};
+(#2 cm+ \mp@nXoffset cm,+ \mp@nYoffset cm)   node[anchor=\mp@nAnchorL]{  \begin{varwidth}{\mp@nLineWidth}#4\end{varwidth}};
 \fi
 }
 
