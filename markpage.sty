@@ -119,20 +119,23 @@
 \newcommand{\mp@decoratedpath}%return path decorated by file number (or plain if mpDoc=0)
 {\mp@fileprefix\if\thempDoc0\else_\thempDoc\fi.pdf}
 
-%#####################################################____STEPCOUNTERS
-\newcommand{\mp@stepcounters}[1][1]{%set optional parameter 0 to suppress end of file warning
-%check for page limit of current doc
+%#####################################################____STEPTODOC
+\newcommand{\mp@steptodoc}{%recursively update doc counter as needed to find a page(or set eof=1)
 \if\mp@eof0
 \ifnum\value{mpPage}<\value{mpAvailPages}
 \else%page>=number of pages
 \stepcounter{mpDoc}%also resets mpPage and mpAvailPages
 \IfFileExists{\mp@decoratedpath}{
 	\mp@checkmaxpages%update mpAvailPages 
-	\mp@stepcounters[#1]{}%recursively check new document for a page to include
+	\mp@steptodoc{}%recursively check new document for a page to include
 	}{	%no file found => end of pages to mark 
 	\global\def\mp@eof{1}}%set eof flag
 \fi%pages available
 \fi%eof 0
+}
+%#####################################################____STEPCOUNTERS
+\newcommand{\mp@stepcounters}[1][1]{%set optional parameter 0 to suppress end of file warning
+\mp@steptodoc%make sure there are pages in current doc, or increment doc counter until they are (or eof)
 \if\mp@eof0%increment counter to point to valid page, or optionally print warning if none available
 \stepcounter{mpPage}
 \global\edef\mp@lastpage{[\mp@decoratedpath:\thempPage]}%string representing current page and file
