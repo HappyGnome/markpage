@@ -12,14 +12,14 @@
 	%source pdf(s) 
 	%use \mnote in this environment to add annotation
 	%see * for more options
-%\begin{mpage}
+
 	%mnote usage: \mnote{<x>}{<y>}{<comment>}
-	%<x> and <y> are coordinates of POI (point of interest) in cm (matches grid)
+	%<x> and <y> are coordinates of arrow head in cm (matches grid)
 	%<comment> is the text to appear in the margin
 	%see ** for more options
-%\mnote{10}{5}{Hello world!}
-%Tip: use \checkmark (from amsfonts) to add a tick to your comment
-%\end{mpage}
+
+%Tip: use \mtick and \mcross for tick and cross wingdings
+
 
 \begin{mpage}%mark page 1
 	%\mnote{}{}{}
@@ -29,11 +29,11 @@
 \end{document}
 
 % * 
-%mpage options
+%selected mpage options
 	%Use \begin{mpage}[margin=10cm] to set margin width to 10cm for example
 	
 % **
-%mnote options
+%selected mnote options
 	%use \mnote[<options>]{<x>}{<y>}{<comment>}
 	%where <options>="<key1>=<value1>,<key2>=<value2>,...,<keyn>=<valuen>"
 	%include some or all keys in any order
