@@ -29,20 +29,39 @@
 \end{document}
 
 % * 
-%selected mpage options
-	%Use \begin{mpage}[margin=10cm] to set margin width to 10cm for example
+%mpage options
+	%Use \begin{mpage}[<options>]
+	%where <options>="<key1>=<value1>,<key2>=<value2>,...,<keyn>=<valuen>"
+	%include some or all keys in any order
+	%KEYS:  
+	%	margin: set margin width (include units) e.g. "margin=7cm"
+	%	num show: set flags for showing row/col numbers in order NESW e.g. "num show=1110" shows all but 
+	%				left-hand numbers
+	%	num inset: set number of squares to move numbers inside the page e.g. "num inset={{3}{2}{3}{3}}" puts
+	%				 right-hand numbers 2 squares into the page and the rest at 3.
+	%	num colour: name a Tikz colour to use for the numbers
+	%	subgrid show: 1 or 0 to toggle display of higher resolution grid
+	
+	%Use \mpageDefaults{<options>} to override defaults for all mpages following this call
 	
 % **
-%selected mnote options
+%mnote options
 	%use \mnote[<options>]{<x>}{<y>}{<comment>}
 	%where <options>="<key1>=<value1>,<key2>=<value2>,...,<keyn>=<valuen>"
 	%include some or all keys in any order
 	%KEYS:  
-	%	xoff: x-displacement(cm) of comment from normal position
-	%	yoff: y-displacement(cm) of comment from normal position
+	%	xoff: x-displacement(cm) of comment from normal position (exclude units)
+	%	yoff: y-displacement(cm) of comment from normal position (exclude units)
 	%	colour: colour of comment and line - many available using words, see TikZ documentation for more options
-	%	line opts: further (more advanced) commands to send direct to TikZ. Enclose the <value> in braces e.g. line opts={very thick}
+	%	line opts: further (more advanced) commands to send direct to TikZ. Enclose the <value> in braces 
+	%				 e.g. line opts={very thick}
+	%	anchor: point for tail of arrow in relation to annotation text e.g. "anchor=north east" (see Tikz documentation)
+	%	width: set line width of annotation
+	%	bend: angle (in degrees) of left bend of the arrow (e.g. bend=30 sets tangent at the head of the arrow 30
+	%				 degrees ccw from original arrow direction) 
 	
 	%E.G. 
 	%\mnote[xoff=1,colour=black]{12}{13}{This comment has moved 1cm to the right and is black}
+	
+	%Use \mnoteDefaults{<options>} to override defaults for all mpages following this call
  
