@@ -1,0 +1,48 @@
+\documentclass{article}
+
+%replace <file> with the path of the pdf, excluding ".pdf"
+%e.g. to annotate "./MyHomework.pdf", use "source=MyHomework"
+%For a series of files with names "<file>_1.pdf",..."<file>_n.pdf" use "source= <file>"
+%use option flag "grid" to show grid
+\usepackage[source = <file>, grid]{markpage}
+
+\begin{document}
+
+	%mpage environment: includes the next page from the 
+	%source pdf(s) 
+	%use \mnote in this environment to add annotation
+	%see * for more options
+%\begin{mpage}
+	%mnote usage: \mnote{<x>}{<y>}{<comment>}
+	%<x> and <y> are coordinates of POI (point of interest) in cm (matches grid)
+	%<comment> is the text to appear in the margin
+	%see ** for more options
+%\mnote{10}{5}{Hello world!}
+%Tip: use \checkmark (from amsfonts) to add a tick to your comment
+%\end{mpage}
+
+\begin{mpage}%mark page 1
+	%\mnote{}{}{}
+\end{mpage}
+	
+\mstatus %Throw error if you don't include every page (i.e.  too few instances of \begin{mpage}...\end{mpage})
+\end{document}
+
+% * 
+%mpage options
+	%Use \begin{mpage}[margin=10cm] to set margin width to 10cm for example
+	
+% **
+%mnote options
+	%use \mnote[<options>]{<x>}{<y>}{<comment>}
+	%where <options>="<key1>=<value1>,<key2>=<value2>,...,<keyn>=<valuen>"
+	%include some or all keys in any order
+	%KEYS:  
+	%	xoff: x-displacement(cm) of comment from normal position
+	%	yoff: y-displacement(cm) of comment from normal position
+	%	colour: colour of comment and line - many available using words, see TikZ documentation for more options
+	%	line opts: further (more advanced) commands to send direct to TikZ. Enclose the <value> in braces e.g. line opts={very thick}
+	
+	%E.G. 
+	%\mnote[xoff=1,colour=black]{12}{13}{This comment has moved 1cm to the right and is black}
+ 
