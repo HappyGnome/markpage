@@ -35,6 +35,12 @@
 \newlength{\mp@pdfyoffset}
 
 \newlength\mp@nLineWidth%max text width of particular note
+%#####################################################____Num<->Char
+\def\mp@first(#1#2){#1}
+\newcommand{\mp@charToInta}[1]{\the\numexpr `#1-96}
+\newcommand{\mp@charToIntA}[1]{\the\numexpr `#1-38}
+\newcommand{\mp@charToInt}[1]{\ifnum \numexpr\expandafter`\mp@first(#1)<58 #1 \else\ifnum \numexpr\expandafter`\mp@first(#1)>96 \mp@charToInta#1 \else \charToIntA#1\fi\fi}
+\newcommand{\mp@intToChar}[1]{\ifnum #1>52 #1\else \ifnum #1<1 #1 \else\ifnum #1>26 \symbol{\numexpr #1+38}\else\symbol{\numexpr #1+96}\fi\fi\fi}
 %#####################################################____FLAGS
 \def\mp@eof{0}%set to 1 when no more pages available to include
 
@@ -91,13 +97,13 @@
 \edef\mpArgExp{\mp@argconcat{\mp@nDefaults}{#1}}%preexpand concatenation of new args and defaults
 \expandafter\expandafter\expandafter\setkeys\expandafter\mpnKeys\expandafter{\mpArgExp}
 
-\expandafter\draw\expandafter[\expandafter\mp@nColour\mp@nLineOpts] (#2 cm,#3 cm)node[shape=circle,minimum size=6pt, inner sep=0pt, fill]{}
+\expandafter\draw\expandafter[\expandafter\mp@nColour\mp@nLineOpts] (\mp@charToInt{#2} cm,\mp@charToInt{#3} cm)node[shape=circle,minimum size=6pt, inner sep=0pt, fill]{}
 \if\mp@portraitmode1%portrait mode
  to [bend left=\mp@nBend] %highlighter end
- (\the\mp@pdfpaperWidth+\the\mp@mMarkMargin-\the\mp@gNotePadOut -\the\mp@nLineWidth + \mp@nXoffset cm,#3 cm+\mp@nYoffset cm)  node[anchor=\mp@nAnchorP]{ \begin{varwidth}{\the\mp@nLineWidth}#4\end{varwidth}};
+ (\the\mp@pdfpaperWidth+\the\mp@mMarkMargin-\the\mp@gNotePadOut -\the\mp@nLineWidth + \mp@nXoffset cm,\mp@charToInt{#3} cm+\mp@nYoffset cm)  node[anchor=\mp@nAnchorP]{ \begin{varwidth}{\the\mp@nLineWidth}#4\end{varwidth}};
 \else%landscape mode
  to [bend left=\mp@nBend] %highlighter end
- (#2 cm+ \mp@nXoffset cm,\the\mp@gNotePadOut +\the\mp@nLineWidth-\the\mp@mMarkMargin+ \mp@nYoffset cm)   node[anchor=\mp@nAnchorL]{  \begin{varwidth}{\mp@nLineWidth}#4\end{varwidth}};
+ (\mp@charToInt{#2} cm+ \mp@nXoffset cm,\the\mp@gNotePadOut +\the\mp@nLineWidth-\the\mp@mMarkMargin+ \mp@nYoffset cm)   node[anchor=\mp@nAnchorL]{  \begin{varwidth}{\mp@nLineWidth}#4\end{varwidth}};
 \fi
 }
 
@@ -112,12 +118,12 @@
 \if\mp@mShowSubgrid1\draw[lightgray, step=0.5cm] (0,0) grid (\mp@pdfpaperWidth,\mp@pdfpaperHeight);\fi
 \draw[gray, step=1cm] (0,0) grid (\mp@pdfpaperWidth,\mp@pdfpaperHeight);
 \foreach \k in{1,2,...,\mp@pagewidthcm-1}{%x-labels
-\if\mp@mGridNumS 1\draw[\mp@mGridNumColour] (\k cm,\mp@mGridNumSInset cm) node[anchor=north east]{\k};\fi
-\if\mp@mGridNumN 1\draw[\mp@mGridNumColour] (\k cm,\the\mp@pageheightcm cm-\mp@mGridNumNInset cm) node[anchor=north east]{\k};\fi
+\if\mp@mGridNumS 1\draw[\mp@mGridNumColour] (\k cm,\mp@mGridNumSInset cm) node[anchor=north east]{\mp@intToChar{\k}};\fi
+\if\mp@mGridNumN 1\draw[\mp@mGridNumColour] (\k cm,\the\mp@pageheightcm cm-\mp@mGridNumNInset cm) node[anchor=north east]{\mp@intToChar{\k}};\fi
 }
 \foreach \k in{1,2,...,\mp@pageheightcm-1}{%y-labels
-\if\mp@mGridNumE 1\draw[\mp@mGridNumColour] (\the\mp@pagewidthcm cm-\mp@mGridNumEInset cm,\k cm) node[anchor=north west]{\k};\fi
-\if\mp@mGridNumW 1 \draw[\mp@mGridNumColour](\mp@mGridNumWInset cm,\k cm) node[anchor=north west]{\k};\fi
+\if\mp@mGridNumE 1\draw[\mp@mGridNumColour] (\the\mp@pagewidthcm cm-\mp@mGridNumEInset cm,\k cm) node[anchor=north west]{\mp@intToChar{\k}};\fi
+\if\mp@mGridNumW 1 \draw[\mp@mGridNumColour](\mp@mGridNumWInset cm,\k cm) node[anchor=north west]{\mp@intToChar{\k}};\fi
 }
 \fi
 }
