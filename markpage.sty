@@ -35,6 +35,8 @@
 \newlength{\mp@pdfyoffset}
 
 \newlength\mp@nLineWidth%max text width of particular note
+
+\newlength\mp@hLineWidth%max text width of particular note
 %#####################################################____Num<->Char
 \def\mp@first(#1#2){#1}
 \newcommand{\mp@charToInta}[1]{\the\numexpr `#1-96}
@@ -63,6 +65,8 @@
 \newcommand\mpageDefaults[1]{\def\mp@mDefaults{#1}}
 \def\mp@nDefaults{}%mnote defaults
 \newcommand\mnoteDefaults[1]{\def\mp@nDefaults{#1}}
+\def\mp@hDefaults{}%mnoth defaults
+\newcommand\mnothDefaults[1]{\def\mp@hDefaults{#1}}
 
 %#####################################################____ARGCONCAT
 \newcommand\mp@argconcat[2]{#1\if#1\empty\else\if#2\empty\else,\fi\fi#2}
@@ -105,6 +109,34 @@
  to [bend left=\mp@nBend] %highlighter end
  (\mp@charToInt{#2} cm+ \mp@nXoffset cm,\the\mp@gNotePadOut +\the\mp@nLineWidth-\the\mp@mMarkMargin+ \mp@nYoffset cm)   node[anchor=\mp@nAnchorL]{  \begin{varwidth}{\mp@nLineWidth}#4\end{varwidth}};
 \fi
+}
+
+%#####################################################____MNOTH
+%Put note at given position (not at margin)
+%mnoth keyvals
+\newcommand{\mp@hDefaultOpts}{
+\setlength{\mp@hLineWidth}{\mp@mNoteWidth}
+\def\mp@hColour{red}
+\def\mp@hNodeOpts{}
+}
+
+\define@key{mphKeys}{width}{\setlength\mp@hLineWidth{#1}}%width
+\define@key{mphKeys}{node opts}{\def\mp@hNodeOpts{,#1}}%Other tikz options for the lines can be set here
+\define@key{mphKeys}{colour}{\def\mp@hColour{#1}}
+
+%________________________________________________________________________%
+%mnoth command
+\newcommand{\mnoth}[4][]{
+%reset default option values
+\mp@hDefaultOpts
+%handle options
+\def\mphKeys{{mphKeys}}
+\edef\mpArgExp{\mp@argconcat{\mp@hDefaults}{#1}}%preexpand concatenation of new args and defaults
+\expandafter\expandafter\expandafter\setkeys\expandafter\mphKeys\expandafter{\mpArgExp}
+
+\edef\NodeParams{anchor=north west\mp@hNodeOpts}
+\edef\DrawPreamble{[\mp@hColour] (\mp@charToInt{#2} cm,\mp@charToInt{#3} cm)node}
+\expandafter\draw\expandafter\DrawPreamble\expandafter[\NodeParams]{ \begin{varwidth}{\the\mp@hLineWidth}#4\end{varwidth}};
 }
 
 %#####################################################____MGRID
