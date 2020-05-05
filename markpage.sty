@@ -41,7 +41,7 @@
 \def\mp@first(#1#2){#1}
 \newcommand{\mp@charToInta}[1]{\the\numexpr `#1-96}
 \newcommand{\mp@charToIntA}[1]{\the\numexpr `#1-38}
-\newcommand{\mp@charToInt}[1]{\ifnum \numexpr\expandafter`\mp@first(#1)<58 #1 \else\ifnum \numexpr\expandafter`\mp@first(#1)>96 \mp@charToInta#1 \else \charToIntA#1\fi\fi}
+\newcommand{\mp@charToInt}[1]{\ifnum \numexpr\expandafter`\mp@first(#1)<58 #1 \else\ifnum \numexpr\expandafter`\mp@first(#1)>96 \mp@charToInta#1 \else \mp@charToIntA#1\fi\fi}
 \newcommand{\mp@intToChar}[1]{\ifnum #1>52 #1\else \ifnum #1<1 #1 \else\ifnum #1>26 \symbol{\numexpr #1+38}\else\symbol{\numexpr #1+96}\fi\fi\fi}
 %#####################################################____FLAGS
 \def\mp@eof{0}%set to 1 when no more pages available to include
