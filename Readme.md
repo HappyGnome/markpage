@@ -84,8 +84,8 @@ When using letters, fractional row/column indices can still be indicated: `\mnot
 To add a note at a specified point on the page rather than in the margin, and without an annotation line, use `\mnoth <x><y><text>`. `<x>`, `<y>` and `<text>` are as for `mnote` E.g. `\mnoth{3.6}f{Hello}` adds the text 'Hello' at column 3.6, row 6.
 
 #### `mnoth` options
-+ 'width' : As for `mnote`
-+ 'node opts' : Tikz options for the node drawing command E.g.
++ `width` : As for `mnote`
++ `node opts` : Tikz options for the node drawing command E.g.
 `node opts={ultra thick, shape=circle, draw}` to put a thick circle around the text.
 + `colour` : As for `mnote`
 
