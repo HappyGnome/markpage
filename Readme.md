@@ -99,6 +99,7 @@ By default (unless the package option `noshortcuts` is used) the following macro
 + `\mtick` and `\mcross` : insert tick and cross wingdings from pifont
 + `\mtt<x><y>` : Equivalent to `\mnoth<x><y>\mtick`
 + `\mcc<x><y>` : Equivalent to `\mnoth<x><y>\mcross`
++ `\ms` : Adds 'page seen' stamp in the lower left corner of the page
 
 The following use a slightly unusual syntax to reduce keystrokes needed for marking:
 + `\mt<text> <x><y>/` : Add a tick followed by `<text>` at `(<x>,<y>)`. The space after `<text>` is necessary!  Note that `<text>` need only be enclosed in braces `{...}` if it contains spaces. E.g.
