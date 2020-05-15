@@ -4,6 +4,9 @@
 A LaTeX style package for annotating pdfs, either in-page or in an additional
 margin.
 
+See the companion python project [mark_helper](https://github.com/HappyGnome/mark_helper)
+for marking and checking automation tools in development.
+
 ## Installation
 Add **markpage.sty** to your texmf directory and update the file list for your
 tex distribution.
